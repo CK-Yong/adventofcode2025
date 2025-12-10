@@ -23,13 +23,31 @@ fn main() -> std::io::Result<()> {
 
 fn find_highest_joltage(val: &str) -> u64 {
     let mut buffer: [char; 12] = array::repeat('0');
+    let length = val.len();
+    let mut rotations = 0;
 
     for (idx, digit) in val.chars().enumerate() {
         let last = &mut buffer[11];
+        let leftover = (length - idx) as i32;
+
+        // Edge case when there are less digits leftover than we have filled
+        if 12 - rotations > leftover {
+            buffer.rotate_left(1);
+            buffer[11] = digit;
+            rotations += 1;
+            continue;
+        }
+
+        if *last == digit {
+            continue;
+        }
 
         if *last < digit {
             *last = digit;
+        } else {
             buffer.rotate_left(1);
+            buffer[11] = digit;
+            rotations += 1;
         }
     }
 
@@ -57,6 +75,7 @@ mod tests {
     #[test]
     fn test_highest_joltage_3() {
         assert_eq!(find_highest_joltage("818181911112111"), 888911112111);
+        assert_eq!(find_highest_joltage("818181911112111111"), 911112111111);
     }
 
     #[test]
