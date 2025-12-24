@@ -1,7 +1,7 @@
 use std::{
+    array,
     fs::File,
     io::{self, BufRead},
-    array
 };
 
 fn main() -> std::io::Result<()> {
@@ -22,39 +22,28 @@ fn main() -> std::io::Result<()> {
 }
 
 fn find_highest_joltage(val: &str) -> u64 {
-    let mut buffer: [char; 12] = array::repeat('0');
     let length = val.len();
-    let mut rotations = 0;
-
-    for (idx, digit) in val.chars().enumerate() {
-        let last = &mut buffer[11];
-        let leftover = (length - idx) as i32;
-
-        // Edge case when there are less digits leftover than we have filled
-        if 12 - rotations > leftover {
-            buffer.rotate_left(1);
-            buffer[11] = digit;
-            rotations += 1;
-            continue;
-        }
-
-        if *last == digit {
-            continue;
-        }
-
-        if *last < digit {
-            *last = digit;
-        } else {
-            buffer.rotate_left(1);
-            buffer[11] = digit;
-            rotations += 1;
-        }
-    }
-
     let mut str = String::with_capacity(12);
-    for ch in buffer {
-        str.push(ch);
+    let mut idx = 0;
+
+    for n in 0 .. 12 {
+        let subset = &val[idx .. length - 11 + n];
+
+        let mut max:char = '\0';
+
+        let mut idx_in_subset = 0;
+
+        for (i, char) in subset.chars().enumerate() {
+            if max < char {
+                max = char;
+                idx_in_subset = i;
+            }
+        }
+
+        str.push(max);
+        idx = idx + idx_in_subset + 1;
     }
+
     str.parse::<u64>().expect("Failed to parse result")
 }
 
