@@ -1,7 +1,7 @@
 use std::{
+    array,
     fs::File,
     io::{self, BufRead},
-    array
 };
 
 fn main() -> std::io::Result<()> {
@@ -26,29 +26,24 @@ fn find_highest_joltage(val: &str) -> u64 {
     let length = val.len();
     let mut rotations = 0;
 
-    for (idx, digit) in val.chars().enumerate() {
-        let last = &mut buffer[11];
-        let leftover = (length - idx) as i32;
-
-        // Edge case when there are less digits leftover than we have filled
-        if 12 - rotations > leftover {
-            buffer.rotate_left(1);
-            buffer[11] = digit;
-            rotations += 1;
-            continue;
+    let mut from = 0;
+    for i in 0..11 {
+        let mut max = '0';
+        let mut index = 0;
+        let potential: Vec<char> = val.chars().collect();
+        for (idx, digit) in potential[from..length-i].iter().enumerate() {
+            if buffer.len() + idx < length {
+                break;   
+            }
+            
+            if max < *digit {
+                max = *digit;
+                from = idx;
+            }
         }
 
-        if *last == digit {
-            continue;
-        }
+        buffer[i] = max;
 
-        if *last < digit {
-            *last = digit;
-        } else {
-            buffer.rotate_left(1);
-            buffer[11] = digit;
-            rotations += 1;
-        }
     }
 
     let mut str = String::with_capacity(12);
